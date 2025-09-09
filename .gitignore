@@ -1,0 +1,58 @@
+# Laravel / PHP
+/vendor
+/node_modules
+/.idea
+/.vscode
+/.phpunit.result.cache
+/.env
+/.env.local
+/.env.*.local
+/storage/*.key
+/storage/framework/cache/data
+/storage/logs/*.log
+/storage/debugbar
+/public/storage
+Homestead.yaml
+Homestead.json
+/.phpunit.result.cache
+.phpunit.result.cache
+
+# Composer
+/composer.lock
+
+# Laravel Mix / Vite / npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# React / Node / TypeScript
+/build
+/dist
+/.turbo
+/.next
+/out
+/.cache
+/.parcel-cache
+.DS_Store
+
+# Docker
+*.env.docker
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# JetBrains IDEs
+.idea/
+
+# VS Code
+.vscode/
+
+# Misc
+*.log
+*.swp
+*.swo
+*.bak

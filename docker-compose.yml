@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:10.11
+    container_name: laravel_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # PHP Laravel Application
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: laravel_api
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./api:/var/www/html
+      - ./api/storage:/var/www/html/storage
+    environment:
+      DB_HOST: mariadb
+      DB_DATABASE: laravel_db
+      DB_USERNAME: laravel_user
+      DB_PASSWORD: laravel_password
+      APP_URL: http://localhost:8000
+    ports:
+      - "8000:8000"
+      - "9100:9100"
+    depends_on:
+      - mariadb
+    networks:
+      - app-network
+
+  # React Application
+  spa:
+    build:
+      context: ./spa
+      dockerfile: Dockerfile
+    container_name: react_spa
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./spa:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
