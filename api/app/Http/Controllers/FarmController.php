@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFarmRequest;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\UpdateFarmRequest;
 use App\Models\Farm;
@@ -32,7 +33,7 @@ class FarmController extends Controller
         return response()->json($farm);
     }
 
-    public function store(UpdateFarmRequest $request)
+    public function store(StoreFarmRequest $request)
     {
         $farm = $this->farmService->store($request->validated(), $request->user()->id);
         return response()->json($farm, 201);

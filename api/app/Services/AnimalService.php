@@ -27,10 +27,6 @@ class AnimalService
 
     public function store(array $data, Farm $farm): Animal
     {
-        if ($farm->animals()->count() >= 3) {
-            throw new \Exception("Each farm can have max 3 animals");
-        }
-
         return $this->animalRepository->createForFarm($data, $farm);
     }
 

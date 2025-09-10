@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAnimalRequest;
 use App\Http\Requests\UpdateAnimalRequest;
 use App\Models\Animal;
 use App\Models\Farm;
@@ -29,7 +30,7 @@ class AnimalController extends Controller
         return response()->json($animals);
     }
 
-    public function store(UpdateAnimalRequest $request, Farm $farm)
+    public function store(StoreAnimalRequest $request, Farm $farm)
     {
         $this->authorizeOwner($farm, $request);
 
