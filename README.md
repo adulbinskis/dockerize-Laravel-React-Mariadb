@@ -1,4 +1,5 @@
-In my case inside wsl 2
+In my case inside wsl 2 
+
 api:
 composer install
 
@@ -40,4 +41,5 @@ Seeded users:
         'email' => 'user2@example.com',
         
         'password' => Hash::make('password'),
+
 
