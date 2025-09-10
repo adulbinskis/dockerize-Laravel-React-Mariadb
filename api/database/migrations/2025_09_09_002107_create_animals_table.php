@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('animals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('farm_id')->constrained()->cascadeOnDelete(); // each animal belongs to a farm
+            $table->foreignId('farm_id')->constrained()->cascadeOnDelete();
             $table->string('animal_number');
             $table->string('type_name');
             $table->integer('years')->nullable();

@@ -18,14 +18,14 @@ class StoreAnimalRequest extends FormRequest
             'animal_number' => 'required|integer',
             'type_name' => 'required|string|max:255',
             'years' => 'nullable|integer|min:0',
-            'farm_id' => 'required|exists:farms,id',
         ];
     }
 
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $farm = Farm::find($this->input('farm_id'));
+            $farmId = $this->route('farm');
+            $farm = Farm::find($farmId);
 
             if ($farm && $farm->animals()->count() >= 3) {
                 $validator->errors()->add('farm_id', 'Each farm can have max 3 animals');

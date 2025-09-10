@@ -1,16 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
 import { fetchAnimals, createAnimal, deleteAnimal, Animal } from "../../api/animals";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Drawer from "../../components/ui/Drawer";
 import EditAnimalForm from "../../components/EditAnimalForm";
+import * as Yup from "yup";
+
+const animalSchema = Yup.object().shape({
+    animalNumber: Yup.number()
+        .required("Animal number is required")
+        .positive("Must be greater than 0")
+        .integer("Must be an integer"),
+    typeName: Yup.string()
+        .required("Type is required"),
+    years: Yup.number()
+        .min(0, "Years cannot be negative")
+        .nullable()
+        .notRequired(),
+});
 
 const AnimalsPage: React.FC = () => {
     const { farmId } = useParams<{ farmId: string }>();
-    const { user } = useAuth();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [page, setPage] = useState(1);
@@ -18,6 +30,8 @@ const AnimalsPage: React.FC = () => {
     const [animalNumber, setAnimalNumber] = useState<number>(1);
     const [typeName, setTypeName] = useState("");
     const [years, setYears] = useState<number | undefined>();
+
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const [selectedAnimalId, setSelectedAnimalId] = useState<number | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -34,12 +48,38 @@ const AnimalsPage: React.FC = () => {
 
     const handleCreate = async () => {
         if (!farmId) return;
+        if (animals.length >= 3) {
+            alert('Saimniecībai varbūt ne vairāk par 3 dzīvinekiem')
+            return
+        }
+
         try {
-            await createAnimal(Number(farmId), { animal_number: animalNumber, type_name: typeName, years });
-            setAnimalNumber(1); setTypeName(""); setYears(undefined);
+            await animalSchema.validate(
+                { animalNumber, typeName, years },
+                { abortEarly: false }
+            );
+
+            await createAnimal(Number(farmId), {
+                animal_number: animalNumber,
+                type_name: typeName,
+                years,
+            });
+
+            setAnimalNumber(1);
+            setTypeName("");
+            setYears(undefined);
+            setErrors({});
             loadAnimals();
         } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to add animal");
+            if (err.name === "ValidationError") {
+                const newErrors: { [key: string]: string } = {};
+                err.inner.forEach((e: any) => {
+                    if (e.path) newErrors[e.path] = e.message;
+                });
+                setErrors(newErrors);
+            } else {
+                alert(err.response?.data?.error || "Failed to add animal");
+            }
         }
     };
 
@@ -61,7 +101,7 @@ const AnimalsPage: React.FC = () => {
     const closeDrawer = () => {
         setSelectedAnimalId(null);
         setIsDrawerOpen(false);
-        loadAnimals()
+        loadAnimals();
     };
 
     useEffect(() => {
@@ -69,37 +109,72 @@ const AnimalsPage: React.FC = () => {
     }, [page, farmId]);
 
     return (
-        <div className={'container'}>
+        <div className="container">
             <main className="p-4">
                 <div className="mb-4">
                     <Button variant="secondary" onClick={() => navigate("/")}>
                         ← Back to Farms
                     </Button>
                 </div>
-                <h2 className="text-2xl font-bold mb-4">Animals of Farm {farmId}</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                    Animals of Farm {farmId}
+                </h2>
 
-                <div className="mb-4 flex gap-2">
-                    <Input
-                        type="number"
-                        min={1}
-                        placeholder="Number"
-                        value={animalNumber}
-                        onChange={(e) => setAnimalNumber(Number(e.target.value))}
-                    />
-                    <Input
-                        type="text"
-                        placeholder="Type"
-                        value={typeName}
-                        onChange={(e) => setTypeName(e.target.value)}
-                    />
-                    <Input
-                        type="number"
-                        min={0}
-                        placeholder="Years"
-                        value={years ?? ""}
-                        onChange={(e) => setYears(Number(e.target.value))}
-                    />
-                    <Button variant="primary" onClick={handleCreate} expernalClassname={'mb-2'}>
+                <div className="mb-4 flex flex-col gap-2 md:flex-row">
+                    <div className="flex flex-col">
+                        <Input
+                            type="number"
+                            min={1}
+                            placeholder="Number"
+                            value={animalNumber}
+                            onChange={(e) =>
+                                setAnimalNumber(Number(e.target.value))
+                            }
+                        />
+                        {errors.animalNumber && (
+                            <span className="text-red-500 text-sm">
+                                {errors.animalNumber}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col">
+                        <Input
+                            type="text"
+                            placeholder="Type"
+                            value={typeName}
+                            onChange={(e) => setTypeName(e.target.value)}
+                        />
+                        {errors.typeName && (
+                            <span className="text-red-500 text-sm">
+                                {errors.typeName}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col">
+                        <Input
+                            type="number"
+                            min={0}
+                            placeholder="Years"
+                            value={years ?? ""}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setYears(val === "" ? undefined : Number(val));
+                            }}
+                        />
+                        {errors.years && (
+                            <span className="text-red-500 text-sm">
+                                {errors.years}
+                            </span>
+                        )}
+                    </div>
+
+                    <Button
+                        variant="primary"
+                        onClick={handleCreate}
+                        expernalClassname={"h-[42px]"}
+                    >
                         Add Animal
                     </Button>
                 </div>
@@ -116,14 +191,28 @@ const AnimalsPage: React.FC = () => {
                     <tbody>
                         {animals.map((animal) => (
                             <tr key={animal.id}>
-                                <td className="border p-2">{animal.animal_number}</td>
-                                <td className="border p-2">{animal.type_name}</td>
-                                <td className="border p-2">{animal.years ?? "-"}</td>
+                                <td className="border p-2">
+                                    {animal.animal_number}
+                                </td>
+                                <td className="border p-2">
+                                    {animal.type_name}
+                                </td>
+                                <td className="border p-2">
+                                    {animal.years ?? "-"}
+                                </td>
                                 <td className="border p-2 flex gap-2 justify-end">
-                                    <Button variant="danger" onClick={() => handleDelete(animal.id)}>
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => handleDelete(animal.id)}
+                                    >
                                         Delete
                                     </Button>
-                                    <Button variant={"primary"} onClick={() => openDrawer(animal.id)}>Edit</Button>
+                                    <Button
+                                        variant={"primary"}
+                                        onClick={() => openDrawer(animal.id)}
+                                    >
+                                        Edit
+                                    </Button>
                                 </td>
                             </tr>
                         ))}
@@ -131,13 +220,27 @@ const AnimalsPage: React.FC = () => {
                 </table>
 
                 <div className="flex gap-2 mt-4">
-                    <Button onClick={() => setPage((p) => Math.max(1, p - 1))}>Prev</Button>
+                    <Button onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                        Prev
+                    </Button>
                     <span>Page {page}</span>
                     <Button onClick={() => setPage((p) => p + 1)}>Next</Button>
                 </div>
             </main>
-            <Drawer isOpen={isDrawerOpen} onClose={closeDrawer} title="Edit Farm">
-                {(selectedAnimalId && farmId) ? <EditAnimalForm farmId={Number(farmId)} animalId={selectedAnimalId} onSuccess={closeDrawer} /> : <></>}
+            <Drawer
+                isOpen={isDrawerOpen}
+                onClose={closeDrawer}
+                title="Edit Animal"
+            >
+                {selectedAnimalId && farmId ? (
+                    <EditAnimalForm
+                        farmId={Number(farmId)}
+                        animalId={selectedAnimalId}
+                        onSuccess={closeDrawer}
+                    />
+                ) : (
+                    <></>
+                )}
             </Drawer>
         </div>
     );

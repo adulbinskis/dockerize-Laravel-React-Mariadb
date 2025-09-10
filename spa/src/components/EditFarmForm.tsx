@@ -2,16 +2,33 @@ import React, { useEffect, useState } from "react";
 import { getFarm, updateFarm, FarmData } from "../api/farms";
 import Input from "./ui/Input";
 import Button from "./ui/Button";
+import * as Yup from "yup";
 
 interface EditFarmFormProps {
     farmId: number;
     onSuccess: () => void;
 }
 
+const farmSchema = Yup.object().shape({
+    name: Yup.string().required("Name is required"),
+    email: Yup.string()
+        .email("Invalid email")
+        .required("Email is required"),
+    website: Yup.string()
+        .url("Must be a valid URL")
+        .nullable()
+        .notRequired(),
+});
+
 const EditFarmForm: React.FC<EditFarmFormProps> = ({ farmId, onSuccess }) => {
-    const [farm, setFarm] = useState<FarmData>({ name: "", email: "", website: "" });
+    const [farm, setFarm] = useState<FarmData>({
+        name: "",
+        email: "",
+        website: "",
+    });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         const loadFarm = async () => {
@@ -39,10 +56,21 @@ const EditFarmForm: React.FC<EditFarmFormProps> = ({ farmId, onSuccess }) => {
         e.preventDefault();
         setSaving(true);
         try {
+            await farmSchema.validate(farm, { abortEarly: false });
+
             await updateFarm(farmId, farm);
+            setErrors({});
             onSuccess();
         } catch (err: any) {
-            alert(err.response?.data?.error || "Failed to update farm");
+            if (err.name === "ValidationError") {
+                const newErrors: { [key: string]: string } = {};
+                err.inner.forEach((e: any) => {
+                    if (e.path) newErrors[e.path] = e.message;
+                });
+                setErrors(newErrors);
+            } else {
+                alert(err.response?.data?.error || "Failed to update farm");
+            }
         } finally {
             setSaving(false);
         }
@@ -52,25 +80,41 @@ const EditFarmForm: React.FC<EditFarmFormProps> = ({ farmId, onSuccess }) => {
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-2">
-            <Input
-                type="text"
-                placeholder="Farm Name"
-                value={farm.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                required
-            />
-            <Input
-                type="email"
-                placeholder="Email"
-                value={farm.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-            />
-            <Input
-                type="text"
-                placeholder="Website"
-                value={farm.website}
-                onChange={(e) => handleChange("website", e.target.value)}
-            />
+            <div className="flex flex-col">
+                <Input
+                    type="text"
+                    placeholder="Farm Name"
+                    value={farm.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                />
+                {errors.name && (
+                    <span className="text-red-500 text-sm">{errors.name}</span>
+                )}
+            </div>
+
+            <div className="flex flex-col">
+                <Input
+                    type="email"
+                    placeholder="Email"
+                    value={farm.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                />
+                {errors.email && (
+                    <span className="text-red-500 text-sm">{errors.email}</span>
+                )}
+            </div>
+
+            <div className="flex flex-col">
+                <Input
+                    type="text"
+                    placeholder="Website"
+                    value={farm.website}
+                    onChange={(e) => handleChange("website", e.target.value)}
+                />
+                {errors.website && (
+                    <span className="text-red-500 text-sm">{errors.website}</span>
+                )}
+            </div>
 
             <Button type="submit" variant="primary" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
