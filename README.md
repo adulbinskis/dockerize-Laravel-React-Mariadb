@@ -1,45 +1,44 @@
-In my case inside wsl 2 
+```
+# Project Setup Guide
 
-api:
+This guide explains how to set up the project in a WSL 2 environment.
+
+## Prerequisites
+
+- WSL 2
+- Docker & Docker Compose
+- PHP
+- Composer
+- Node.js & npm
+
+cd api
 composer install
 
-spa:
-npm i
+cd ../spa
+npm install
 
-then in root dir:
+cd ..
 docker-compose up -d
 
-inside container API:
-
+# Inside API container
 php artisan migrate
-
 php artisan db:seed
 
-for tests: 
+# Running tests inside API container
+php artisan test --env=testing
 
-  inside container API:
-  
-    php artisan test --env=testing
-    
-    (if php artisan test --env=testing not working){
-    
-      php artisan migrate --env=testing
-      
-    }
+# If the above command does not work
+php artisan migrate --env=testing
 
-Seeded users:
+# Seeded Users
+# User One
+#   email: user1@example.com
+#   password: password
+# User Two
+#   email: user2@example.com
+#   password: password
 
-        'name' => 'User One',
-        
-        'email' => 'user1@example.com',
-        
-        'password' => Hash::make('password'),
-
-
-        'name' => 'User Two',
-        
-        'email' => 'user2@example.com',
-        
-        'password' => Hash::make('password'),
-
-
+# Notes:
+# - Make sure to run commands inside the correct Docker container
+# - Ensure .env files are properly configured before starting the containers
+```
