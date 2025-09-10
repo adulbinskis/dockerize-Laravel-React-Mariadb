@@ -2,9 +2,12 @@ FROM php:8.2-fpm-bullseye
 
 WORKDIR /var/www/html
 
-# Fix apt mirrors (force HTTPS)
+# Step 1: fix sources
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list \
-    && apt-get update && apt-get install -y \
+    && sed -i 's|http://security.debian.org|https://security.debian.org|g' /etc/apt/sources.list
+
+# Step 2: update & install tools
+RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpng-dev \
@@ -14,9 +17,11 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
     unzip \
     libzip-dev \
     default-mysql-client \
-    pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && rm -rf /var/lib/apt/lists/* 
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip

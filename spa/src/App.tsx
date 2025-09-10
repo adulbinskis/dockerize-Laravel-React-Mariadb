@@ -1,27 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import LoginPage from "./pages/Auth/LoginPage";
-import RegisterPage from "./pages/Auth/RegisterPage";
+import ProtectedLayout from "./pages/ProtectedLayout";
+import { routes } from "./routes/routes";
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            {routes.map(({ path, element: Component, protected: isProtected }) =>
+              isProtected ? (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute>
+                      <ProtectedLayout>
+                        <Component />
+                      </ProtectedLayout>
+                    </ProtectedRoute>
+                  }
+                />
+              ) : (
+                <Route key={path} path={path} element={<Component />} />
+              )
+            )}
+          </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
   );

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use App\Http\Requests\UpdateFarmRequest;

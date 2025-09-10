@@ -14,6 +14,7 @@ const LoginPage: React.FC = () => {
         try {
             const res = await login(email, password);
             console.log("Logged in!", res);
+            navigate('/', { replace: true });
         } catch (err) {
             console.error("Login failed", err);
         }

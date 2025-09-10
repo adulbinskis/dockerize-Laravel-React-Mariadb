@@ -21,28 +21,37 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $user = $this->auth->register($request->validated());
-        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Regenerate session to prevent fixation attacks
+        $request->session()->regenerate();
 
         return response()->json([
+            'message' => 'Registered and logged in successfully',
             'user' => $user,
-            'token' => $token,
         ]);
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = $this->auth->login($request->validated());
-
-        if (!$token) {
+        if (!$this->auth->login($request->validated())) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return response()->json(['token' => $token]);
+        $request->session()->regenerate();
+
+        return response()->json(['message' => 'Logged in successfully']);
     }
 
     public function logout(): JsonResponse
     {
-        $this->auth->logout(Auth::user());
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    public function me(): JsonResponse
+    {
+        return response()->json(Auth::user());
     }
 }
