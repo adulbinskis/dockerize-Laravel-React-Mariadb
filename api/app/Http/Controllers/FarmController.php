@@ -10,23 +10,23 @@ use Illuminate\Http\Request;
 
 class FarmController extends Controller
 {
-    protected FarmService $service;
+    protected FarmService $farmService;
 
-    public function __construct(FarmService $service)
+    public function __construct(FarmService $farmService)
     {
-        $this->service = $service;
+        $this->farmService = $farmService;
         $this->middleware('auth:sanctum');
     }
 
     public function index(Request $request)
     {
-        $farms = $this->service->listFarms($request->user()->id);
+        $farms = $this->farmService->listFarms($request->user()->id);
         return response()->json($farms);
     }
 
     public function store(UpdateFarmRequest $request)
     {
-        $farm = $this->service->createFarm($request->validated(), $request->user()->id);
+        $farm = $this->farmService->createFarm($request->validated(), $request->user()->id);
         return response()->json($farm, 201);
     }
 
@@ -43,7 +43,7 @@ class FarmController extends Controller
         if ($farm->user_id !== $request->user()->id) {
             abort(403);
         }
-        $this->service->updateFarm($farm, $request->validated());
+        $this->farmService->updateFarm($farm, $request->validated());
         return response()->json($farm);
     }
 
@@ -52,7 +52,7 @@ class FarmController extends Controller
         if ($farm->user_id !== $request->user()->id) {
             abort(403);
         }
-        $this->service->deleteFarm($farm);
+        $this->farmService->deleteFarm($farm);
         return response()->json(['message' => 'Farm deleted']);
     }
 }

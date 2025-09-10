@@ -12,11 +12,11 @@ use Illuminate\Routing\Controller;
 
 class AnimalController extends Controller
 {
-    protected AnimalService $service;
+    protected AnimalService $animalService;
 
-    public function __construct(AnimalService $service)
+    public function __construct(AnimalService $animalService)
     {
-        $this->service = $service;
+        $this->animalService = $animalService;
         $this->middleware('auth:sanctum');
     }
 
@@ -26,7 +26,7 @@ class AnimalController extends Controller
             abort(403);
         }
 
-        $animals = $this->service->listAnimals($farm);
+        $animals = $this->animalService->listAnimals($farm);
         return response()->json($animals);
     }
 
@@ -37,7 +37,7 @@ class AnimalController extends Controller
         }
 
         try {
-            $animal = $this->service->createAnimal($request->validated(), $farm);
+            $animal = $this->animalService->createAnimal($request->validated(), $farm);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
@@ -51,7 +51,7 @@ class AnimalController extends Controller
             abort(403);
         }
 
-        $animal = $this->service->getAnimal($animal->id, $farm);
+        $animal = $this->animalService->getAnimal($animal->id, $farm);
 
         if (!$animal) {
             abort(404);
@@ -66,7 +66,7 @@ class AnimalController extends Controller
             abort(403);
         }
 
-        $this->service->updateAnimal($animal, $request->validated());
+        $this->animalService->updateAnimal($animal, $request->validated());
         return response()->json($animal);
     }
 
@@ -76,7 +76,7 @@ class AnimalController extends Controller
             abort(403);
         }
 
-        $this->service->deleteAnimal($animal);
+        $this->animalService->deleteAnimal($animal);
         return response()->json(['message' => 'Animal deleted']);
     }
 }

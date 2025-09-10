@@ -8,21 +8,21 @@ use App\Repositories\AnimalRepository;
 
 class AnimalService
 {
-    protected AnimalRepository $repo;
+    protected AnimalRepository $animalRepository;
 
-    public function __construct(AnimalRepository $repo)
+    public function __construct(AnimalRepository $animalRepository)
     {
-        $this->repo = $repo;
+        $this->animalRepository = $animalRepository;
     }
 
     public function listAnimals(Farm $farm, int $perPage = 10)
     {
-        return $this->repo->allByFarm($farm, $perPage);
+        return $this->animalRepository->allByFarm($farm, $perPage);
     }
 
     public function getAnimal(int $id, Farm $farm): ?Animal
     {
-        return $this->repo->findById($id, $farm);
+        return $this->animalRepository->findById($id, $farm);
     }
 
     public function createAnimal(array $data, Farm $farm): Animal
@@ -32,16 +32,16 @@ class AnimalService
         }
 
         $data['farm_id'] = $farm->id;
-        return $this->repo->create($data);
+        return $this->animalRepository->create($data);
     }
 
     public function updateAnimal(Animal $animal, array $data): bool
     {
-        return $this->repo->update($animal, $data);
+        return $this->animalRepository->update($animal, $data);
     }
 
     public function deleteAnimal(Animal $animal): bool
     {
-        return $this->repo->delete($animal);
+        return $this->animalRepository->delete($animal);
     }
 }
