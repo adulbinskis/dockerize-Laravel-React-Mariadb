@@ -7,12 +7,13 @@ import { useAuth } from "../hooks/useAuth";
 
 const Header: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useAuth()
+    const { user, logout } = useAuth()
 
     const handleLogout = async () => {
         try {
             await http.post("/logout");
-            navigate("/login");
+            logout()
+            navigate("/login", { replace: true });
         } catch (error) {
             console.error("Logout failed", error);
         }

@@ -1,14 +1,14 @@
 import { http } from "./axios";
 
 export interface AnimalData {
-    animal_number: number;
+    animal_number: string;
     type_name: string;
     years?: number;
 }
 
 export interface Animal {
     id: number;
-    animal_number: number;
+    animal_number: string;
     type_name: string;
     years?: number;
 }

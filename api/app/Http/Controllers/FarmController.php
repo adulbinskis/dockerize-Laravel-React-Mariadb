@@ -43,7 +43,8 @@ class FarmController extends Controller
     {
         $this->authorizeOwner($farm, $request);
 
-        $this->farmService->update($farm, $request->validated());
+        $farm = $this->farmService->update($farm, $request->validated());
+
         return response()->json($farm);
     }
 

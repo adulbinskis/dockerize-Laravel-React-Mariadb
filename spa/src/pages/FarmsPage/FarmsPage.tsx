@@ -27,7 +27,6 @@ const farmSchema = Yup.object().shape({
 });
 
 const FarmsPage: React.FC = () => {
-    const { user } = useAuth();
     const navigate = useNavigate();
     const [farms, setFarms] = useState<Farm[]>([]);
     const [page, setPage] = useState(1);

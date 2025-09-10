@@ -14,7 +14,7 @@ class UpdateAnimalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_number' => 'required|integer',
+            'animal_number' => 'required|string',
             'type_name' => 'required|string|max:255',
             'years' => 'nullable|integer|min:0',
         ];

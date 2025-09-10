@@ -23,7 +23,7 @@ const RegisterPage: React.FC = () => {
             await register(name, email, password, passwordConfirmation);
             const user = await getMe();
             setUser(user);
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
         } catch (err) {
             setError("Registration failed. Please check your input.");
         }

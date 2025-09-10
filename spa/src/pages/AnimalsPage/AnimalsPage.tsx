@@ -8,10 +8,8 @@ import EditAnimalForm from "../../components/EditAnimalForm";
 import * as Yup from "yup";
 
 const animalSchema = Yup.object().shape({
-    animalNumber: Yup.number()
-        .required("Animal number is required")
-        .positive("Must be greater than 0")
-        .integer("Must be an integer"),
+    animalNumber: Yup.string()
+        .required("Type is required"),
     typeName: Yup.string()
         .required("Type is required"),
     years: Yup.number()
@@ -27,8 +25,8 @@ const AnimalsPage: React.FC = () => {
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [page, setPage] = useState(1);
 
-    const [animalNumber, setAnimalNumber] = useState<number>(1);
-    const [typeName, setTypeName] = useState("");
+    const [animalNumber, setAnimalNumber] = useState<string>('');
+    const [typeName, setTypeName] = useState('');
     const [years, setYears] = useState<number | undefined>();
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -65,8 +63,8 @@ const AnimalsPage: React.FC = () => {
                 years,
             });
 
-            setAnimalNumber(1);
-            setTypeName("");
+            setAnimalNumber('');
+            setTypeName('');
             setYears(undefined);
             setErrors({});
             loadAnimals();
@@ -123,12 +121,12 @@ const AnimalsPage: React.FC = () => {
                 <div className="mb-4 flex flex-col gap-2 md:flex-row">
                     <div className="flex flex-col">
                         <Input
-                            type="number"
+                            type="text"
                             min={1}
                             placeholder="Number"
                             value={animalNumber}
                             onChange={(e) =>
-                                setAnimalNumber(Number(e.target.value))
+                                setAnimalNumber(e.target.value)
                             }
                         />
                         {errors.animalNumber && (

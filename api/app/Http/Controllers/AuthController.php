@@ -22,7 +22,6 @@ class AuthController extends Controller
     {
         $user = $this->auth->register($request->validated());
 
-        // Regenerate session to prevent fixation attacks
         $request->session()->regenerate();
 
         return response()->json([

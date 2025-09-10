@@ -1,20 +1,31 @@
-import React, { useState } from "react";
-import { login } from "../../api/authService";
+import React, { useEffect, useState } from "react";
+import { getMe, login } from "../../api/authService";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate()
+    const { user, login: setUser } = useAuth();
+
+    useEffect(() => {
+        if (user) {
+            navigate('/', { replace: true });
+        }
+    }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await login(email, password);
-            console.log("Logged in!", res);
-            navigate('/', { replace: true });
+            await login(email, password);
+            await getMe().then((data) => {
+                setUser(data);
+            })
+            // navigate('/', { replace: true });
         } catch (err) {
             console.error("Login failed", err);
         }

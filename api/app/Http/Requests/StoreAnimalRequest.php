@@ -15,7 +15,7 @@ class StoreAnimalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'animal_number' => 'required|integer',
+            'animal_number' => 'required|string',
             'type_name' => 'required|string|max:255',
             'years' => 'nullable|integer|min:0',
         ];
@@ -24,8 +24,7 @@ class StoreAnimalRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $farmId = $this->route('farm');
-            $farm = Farm::find($farmId);
+            $farm = $this->route('farm');
 
             if ($farm && $farm->animals()->count() >= 3) {
                 $validator->errors()->add('farm_id', 'Each farm can have max 3 animals');

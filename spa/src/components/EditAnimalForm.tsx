@@ -10,12 +10,8 @@ interface EditAnimalFormProps {
     onSuccess: () => void;
 }
 
-// ✅ Yup schema
 const animalSchema = Yup.object().shape({
-    animal_number: Yup.number()
-        .required("Animal number is required")
-        .positive("Must be greater than 0")
-        .integer("Must be an integer"),
+    animal_number: Yup.string().required("Type is required"),
     type_name: Yup.string().required("Type is required"),
     years: Yup.number()
         .min(0, "Years cannot be negative")
@@ -29,8 +25,8 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
     onSuccess,
 }) => {
     const [animal, setAnimal] = useState<AnimalData>({
-        animal_number: 1,
-        type_name: "",
+        animal_number: '',
+        type_name: '',
         years: undefined,
     });
     const [loading, setLoading] = useState(true);
@@ -55,7 +51,7 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
         loadAnimal();
     }, [farmId, animalId]);
 
-    const handleChange = (field: keyof AnimalData, value: undefined | number) => {
+    const handleChange = (field: keyof AnimalData, value: undefined | string) => {
         setAnimal((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -63,7 +59,6 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
         e.preventDefault();
         setSaving(true);
         try {
-            // ✅ validate before updating
             await animalSchema.validate(animal, { abortEarly: false });
 
             await updateAnimal(farmId, animalId, animal);
@@ -90,11 +85,11 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div className="flex flex-col">
                 <Input
-                    type="number"
+                    type="text"
                     placeholder="Animal Number"
                     value={animal.animal_number}
                     onChange={(e) =>
-                        handleChange("animal_number", Number(e.target.value))
+                        handleChange("animal_number", e.target.value)
                     }
                 />
                 {errors.animal_number && (
@@ -109,7 +104,7 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
                     type="text"
                     placeholder="Type"
                     value={animal.type_name}
-                    onChange={(e) => handleChange("type_name", Number(e.target.value))}
+                    onChange={(e) => handleChange("type_name", e.target.value)}
                 />
                 {errors.type_name && (
                     <span className="text-red-500 text-sm">
@@ -125,7 +120,7 @@ const EditAnimalForm: React.FC<EditAnimalFormProps> = ({
                     value={animal.years ?? ""}
                     onChange={(e) => {
                         const val = e.target.value;
-                        handleChange("years", val === "" ? undefined : Number(val));
+                        handleChange("years", val === "" ? undefined : val);
                     }}
                 />
                 {errors.years && (

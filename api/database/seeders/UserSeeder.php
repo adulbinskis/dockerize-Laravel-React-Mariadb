@@ -10,7 +10,6 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create two users
         User::create([
             'name' => 'User One',
             'email' => 'user1@example.com',
