@@ -14,6 +14,9 @@ This guide explains how to set up the project in a WSL 2 environment.
 cd api
 composer install
 
+# Generate application key inside API container
+php artisan key:generate
+
 cd ../spa
 npm install
 
