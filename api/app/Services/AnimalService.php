@@ -15,33 +15,32 @@ class AnimalService
         $this->animalRepository = $animalRepository;
     }
 
-    public function listAnimals(Farm $farm, int $perPage = 10)
+    public function index(Farm $farm, int $perPage = 10)
     {
-        return $this->animalRepository->allByFarm($farm, $perPage);
+        return $this->animalRepository->index($farm, $perPage);
     }
 
-    public function getAnimal(int $id, Farm $farm): ?Animal
+    public function show(int $id, Farm $farm): ?Animal
     {
-        return $this->animalRepository->findById($id, $farm);
+        return $this->animalRepository->findByIdForFarm($id, $farm);
     }
 
-    public function createAnimal(array $data, Farm $farm): Animal
+    public function store(array $data, Farm $farm): Animal
     {
         if ($farm->animals()->count() >= 3) {
             throw new \Exception("Each farm can have max 3 animals");
         }
 
-        $data['farm_id'] = $farm->id;
-        return $this->animalRepository->create($data);
+        return $this->animalRepository->createForFarm($data, $farm);
     }
 
-    public function updateAnimal(Animal $animal, array $data): bool
+    public function update(Animal $animal, array $data): Animal
     {
-        return $this->animalRepository->update($animal, $data);
+        return $this->animalRepository->update($data, $animal->id);
     }
 
-    public function deleteAnimal(Animal $animal): bool
+    public function destroy(Animal $animal): Animal
     {
-        return $this->animalRepository->delete($animal);
+        return $this->animalRepository->delete($animal->id);
     }
 }

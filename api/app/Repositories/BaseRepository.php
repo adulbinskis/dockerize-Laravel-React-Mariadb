@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseRepository
@@ -18,7 +19,7 @@ class BaseRepository
         return $this->model->all();
     }
 
-    public function find($id)
+    public function find($id): Model
     {
         return $this->model->find($id);
     }
@@ -28,7 +29,7 @@ class BaseRepository
         return $this->model->create($data);
     }
 
-    public function update(array $data, $id)
+    public function update(array $data, $id): Model
     {
         $record = $this->find($id);
         if ($record) {
@@ -37,7 +38,7 @@ class BaseRepository
         return $record;
     }
 
-    public function delete($id)
+    public function delete($id): Model
     {
         $record = $this->find($id);
         if ($record) {

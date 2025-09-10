@@ -14,29 +14,28 @@ class FarmService
         $this->farmRepository = $farmRepository;
     }
 
-    public function listFarms(int $userId, int $perPage = 10)
+    public function index(int $userId, int $perPage = 10)
     {
-        return $this->farmRepository->allByUser($userId, $perPage);
+        return $this->farmRepository->index($userId, $perPage);
     }
 
     public function getFarm(int $id, int $userId): ?Farm
     {
-        return $this->farmRepository->findById($id, $userId);
+        return $this->farmRepository->findByIdForUser($id, $userId);
     }
 
-    public function createFarm(array $data, int $userId): Farm
+    public function store(array $data, int $userId): Farm
     {
-        $data['user_id'] = $userId;
-        return $this->farmRepository->create($data);
+        return $this->farmRepository->createForUser($data, $userId);
     }
 
-    public function updateFarm(Farm $farm, array $data): bool
+    public function update(Farm $farm, array $data): Farm
     {
-        return $this->farmRepository->update($farm, $data);
+        return $this->farmRepository->update($data, $farm->id);
     }
 
-    public function deleteFarm(Farm $farm): bool
+    public function destroy(Farm $farm): Farm
     {
-        return $this->farmRepository->delete($farm);
+        return $this->farmRepository->delete($farm->id);
     }
 }

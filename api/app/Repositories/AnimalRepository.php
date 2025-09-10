@@ -5,37 +5,26 @@ namespace App\Repositories;
 use App\Models\Animal;
 use App\Models\Farm;
 
-class AnimalRepository
+class AnimalRepository extends BaseRepository
 {
-    protected Animal $model;
-
     public function __construct(Animal $animal)
     {
-        $this->model = $animal;
+        parent::__construct($animal);
     }
 
-    public function allByFarm(Farm $farm, int $perPage = 10)
+    public function index(Farm $farm, int $perPage = 10)
     {
         return $farm->animals()->paginate($perPage);
     }
 
-    public function findById(int $id, Farm $farm): ?Animal
+    public function findByIdForFarm(int $id, Farm $farm): ?Animal
     {
         return $farm->animals()->where('id', $id)->first();
     }
 
-    public function create(array $data): Animal
+    public function createForFarm(array $data, Farm $farm): Animal
     {
-        return $this->model->create($data);
-    }
-
-    public function update(Animal $animal, array $data): bool
-    {
-        return $animal->update($data);
-    }
-
-    public function delete(Animal $animal): bool
-    {
-        return $animal->delete();
+        $data['farm_id'] = $farm->id;
+        return parent::create($data);
     }
 }
